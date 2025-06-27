@@ -5,30 +5,27 @@ import numpy as np
 import datetime
 import base64
 import matplotlib.pyplot as plt
-import platform
 import os
+import platform
 
-# 🔄 Smart TTS initialization: only for local use
+# Smart TTS setup (disabled on Streamlit Cloud)
 tts_available = False
-if platform.system() != "Linux" or os.environ.get("HOME") != "/home/adminuser":
-    try:
+engine = None
+try:
+    if platform.system() != "Linux" or not os.environ.get("HOME", "").startswith("/home/adminuser"):
         import pyttsx3
         engine = pyttsx3.init()
-        engine.setProperty('rate', 150)
+        engine.setProperty("rate", 150)
         tts_available = True
-    except:
-        tts_available = False
+except Exception:
+    tts_available = False
 
 # Load trained model
 with open("model.pkl", "rb") as f:
     model = pickle.load(f)
 
-# Page config
 st.set_page_config(page_title="💸 Loan Eligibility Predictor", page_icon="💸", layout="centered")
 
-
-
-# CSS Styling
 st.markdown("""
     <style>
     .stApp { font-family: 'Segoe UI', sans-serif; }
@@ -52,15 +49,13 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# Title
 st.markdown("""
     <div class='title-box'>
         <h2>💸 Loan Eligibility Predictor</h2>
-        <p>AI-powered, mobile-ready and interactive predictor with TTS feature.</p>
+        <p>AI-powered predictor with voice feedback (local only).</p>
     </div>
 """, unsafe_allow_html=True)
 
-# Input form
 with st.form("loan_form"):
     col1, col2 = st.columns(2)
     with col1:
@@ -80,19 +75,18 @@ with st.form("loan_form"):
     show_graph = st.checkbox("📊 Show Insights (Income vs Loan)")
     submit = st.form_submit_button("🔍 Check Eligibility")
 
-# Prediction logic
 if submit:
-    Gender = 1 if Gender == "Male" else 0
-    Married = 1 if Married == "Yes" else 0
-    Dependents = 3 if Dependents == "3+" else int(Dependents)
-    Education = 0 if Education == "Graduate" else 1
-    Self_Employed = 1 if Self_Employed == "Yes" else 0
-    Credit_History = 1 if Credit_History == "Good" else 0
-    Property_Area = {"Urban": 2, "Semiurban": 1, "Rural": 0}[Property_Area]
+    Gender_num = 1 if Gender == "Male" else 0
+    Married_num = 1 if Married == "Yes" else 0
+    Dependents_num = 3 if Dependents == "3+" else int(Dependents)
+    Education_num = 0 if Education == "Graduate" else 1
+    Self_Employed_num = 1 if Self_Employed == "Yes" else 0
+    Credit_History_num = 1 if Credit_History == "Good" else 0
+    Property_Area_num = {"Urban": 2, "Semiurban": 1, "Rural": 0}[Property_Area]
 
-    features = np.array([[Gender, Married, Dependents, Education, Self_Employed,
+    features = np.array([[Gender_num, Married_num, Dependents_num, Education_num, Self_Employed_num,
                           ApplicantIncome, CoapplicantIncome, LoanAmount,
-                          Loan_Amount_Term, Credit_History, Property_Area]])
+                          Loan_Amount_Term, Credit_History_num, Property_Area_num]])
 
     prediction = model.predict(features)
     proba = model.predict_proba(features)[0][1]
@@ -100,22 +94,16 @@ if submit:
     if prediction[0] == 1:
         result_text = f"✅ Congratulations! You are eligible for the loan. Confidence: {proba * 100:.2f}%"
         st.markdown(f"<div class='result-box'>{result_text}</div>", unsafe_allow_html=True)
-        engine.say("You are eligible for the loan")
-        engine.runAndWait()
+        if tts_available and engine:
+            engine.say("You are eligible for the loan")
+            engine.runAndWait()
     else:
         result_text = f"❌ Sorry, you're not eligible. Confidence: {(1 - proba) * 100:.2f}%"
         st.markdown(f"<div class='result-box' style='background-color:#ffebee; color:#b71c1c;'>{result_text}</div>", unsafe_allow_html=True)
-        if tts_available:
-            engine.say("You are eligible for the loan")
+        if tts_available and engine:
+            engine.say("Sorry, you are not eligible for the loan")
             engine.runAndWait()
-            if tts_available:
-                engine.say("Sorry, you're not eligible")
-                engine.runAndWait()
-    # Download report
-    report = f"Loan Eligibility Report\nDate: {datetime.datetime.now()}\n\n{result_text}\n\nDetails:\nGender: {Gender}\nMarried: {Married}\nDependents: {Dependents}\nEducation: {Education}\nIncome: ₹{ApplicantIncome}\nCoapplicant: ₹{CoapplicantIncome}\nLoan: ₹{LoanAmount * 1000}\nProperty Area: {Property_Area}"
-    st.download_button("📄 Download Result", data=report, file_name="loan_eligibility.txt")
 
-    # Optional Graph
     if show_graph:
         st.subheader("📊 Data Insight Charts")
         fig, ax = plt.subplots()
