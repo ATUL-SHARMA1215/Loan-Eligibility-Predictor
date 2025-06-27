@@ -21,7 +21,14 @@ if 'Age' not in df.columns:
 df.drop(columns=['Loan_ID'], inplace=True, errors='ignore')
 
 # Forward fill missing values
-df.fillna(method='ffill', inplace=True)
+# Fill missing values
+df.fillna(method='ffill', inplace=True)  # Forward fill
+df.fillna(method='bfill', inplace=True)  # Backward fill (in case ffill fails)
+df.dropna(inplace=True)                  # Final drop for stubborn NaNs
+
+# Confirm no missing values remain
+print("✅ Missing values after cleanup:")
+print(df.isnull().sum().sum(), "NaNs remaining")
 
 # Encode categorical columns
 le = LabelEncoder()
