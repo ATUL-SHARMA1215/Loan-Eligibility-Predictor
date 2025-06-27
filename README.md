@@ -2,7 +2,7 @@
 
 A smart and interactive AI-powered web application built with **Streamlit** that predicts whether a user is eligible for a loan based on financial and personal details.
 
-![Demo](https://streamlit.io/images/brand/streamlit-logo-secondary-colormark-darktext.svg)
+
 
 ---
 
