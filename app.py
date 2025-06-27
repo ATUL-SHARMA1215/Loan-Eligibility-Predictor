@@ -6,8 +6,7 @@ import base64
 import matplotlib.pyplot as plt
 import os
 import platform
-from sklearn.linear_model import LogisticRegression
-from sklearn.ensemble import RandomForestClassifier
+from PIL import Image
 
 # Smart TTS setup (disabled on Streamlit Cloud)
 tts_available = False
@@ -58,7 +57,7 @@ st.markdown("""
 st.markdown("""
     <div class='title-box'>
         <h2>💸 Loan Eligibility Predictor</h2>
-        <p>AI-powered predictor with model selection, charts, and voice feedback (local only).</p>
+        <p>AI-powered predictor with model selection, charts, voice (local only), and evaluation.</p>
     </div>
 """, unsafe_allow_html=True)
 
@@ -129,3 +128,11 @@ if submit:
         ax2.set_ylabel('Loan Amount (₹)')
         ax2.set_title('Requested Loan Amount')
         st.pyplot(fig2)
+
+    st.subheader("📈 Model Evaluation")
+    if os.path.exists("roc_curve.png"):
+        st.image(Image.open("roc_curve.png"), caption="ROC Curve", use_column_width=True)
+    if os.path.exists("rf_confusion_matrix.png"):
+        st.image(Image.open("rf_confusion_matrix.png"), caption="RF Confusion Matrix", use_column_width=True)
+    if os.path.exists("lr_confusion_matrix.png"):
+        st.image(Image.open("lr_confusion_matrix.png"), caption="LR Confusion Matrix", use_column_width=True)
