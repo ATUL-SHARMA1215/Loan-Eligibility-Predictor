@@ -131,8 +131,8 @@ if submit:
 
     st.subheader("📈 Model Evaluation")
     if os.path.exists("roc_curve.png"):
-        st.image(Image.open("roc_curve.png"), caption="ROC Curve", use_column_width=True)
+        st.image(Image.open("roc_curve.png"), caption="ROC Curve", use_container_width=True)
     if os.path.exists("rf_confusion_matrix.png"):
-        st.image(Image.open("rf_confusion_matrix.png"), caption="RF Confusion Matrix", use_column_width=True)
+        st.image(Image.open("rf_confusion_matrix.png"), caption="RF Confusion Matrix", use_container_width=True)
     if os.path.exists("lr_confusion_matrix.png"):
-        st.image(Image.open("lr_confusion_matrix.png"), caption="LR Confusion Matrix", use_column_width=True)
+        st.image(Image.open("lr_confusion_matrix.png"), caption="LR Confusion Matrix", use_container_width=True)
