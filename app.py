@@ -5,11 +5,19 @@ import numpy as np
 import datetime
 import base64
 import matplotlib.pyplot as plt
-import pyttsx3
+import platform
+import os
 
-# Initialize TTS engine
-engine = pyttsx3.init()
-engine.setProperty('rate', 150)
+# 🔄 Smart TTS initialization: only for local use
+tts_available = False
+if platform.system() != "Linux" or os.environ.get("HOME") != "/home/adminuser":
+    try:
+        import pyttsx3
+        engine = pyttsx3.init()
+        engine.setProperty('rate', 150)
+        tts_available = True
+    except:
+        tts_available = False
 
 # Load trained model
 with open("model.pkl", "rb") as f:
@@ -97,9 +105,12 @@ if submit:
     else:
         result_text = f"❌ Sorry, you're not eligible. Confidence: {(1 - proba) * 100:.2f}%"
         st.markdown(f"<div class='result-box' style='background-color:#ffebee; color:#b71c1c;'>{result_text}</div>", unsafe_allow_html=True)
-        engine.say("Sorry, you're not eligible")
-        engine.runAndWait()
-
+        if tts_available:
+    engine.say("You are eligible for the loan")
+    engine.runAndWait()
+        if tts_available:
+    engine.say("Sorry, you're not eligible")
+    engine.runAndWait()
     # Download report
     report = f"Loan Eligibility Report\nDate: {datetime.datetime.now()}\n\n{result_text}\n\nDetails:\nGender: {Gender}\nMarried: {Married}\nDependents: {Dependents}\nEducation: {Education}\nIncome: ₹{ApplicantIncome}\nCoapplicant: ₹{CoapplicantIncome}\nLoan: ₹{LoanAmount * 1000}\nProperty Area: {Property_Area}"
     st.download_button("📄 Download Result", data=report, file_name="loan_eligibility.txt")
