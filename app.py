@@ -106,11 +106,11 @@ if submit:
         result_text = f"❌ Sorry, you're not eligible. Confidence: {(1 - proba) * 100:.2f}%"
         st.markdown(f"<div class='result-box' style='background-color:#ffebee; color:#b71c1c;'>{result_text}</div>", unsafe_allow_html=True)
         if tts_available:
-    engine.say("You are eligible for the loan")
-    engine.runAndWait()
-        if tts_available:
-    engine.say("Sorry, you're not eligible")
-    engine.runAndWait()
+            engine.say("You are eligible for the loan")
+            engine.runAndWait()
+            if tts_available:
+                engine.say("Sorry, you're not eligible")
+                engine.runAndWait()
     # Download report
     report = f"Loan Eligibility Report\nDate: {datetime.datetime.now()}\n\n{result_text}\n\nDetails:\nGender: {Gender}\nMarried: {Married}\nDependents: {Dependents}\nEducation: {Education}\nIncome: ₹{ApplicantIncome}\nCoapplicant: ₹{CoapplicantIncome}\nLoan: ₹{LoanAmount * 1000}\nProperty Area: {Property_Area}"
     st.download_button("📄 Download Result", data=report, file_name="loan_eligibility.txt")
